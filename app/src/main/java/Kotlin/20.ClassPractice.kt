@@ -22,12 +22,14 @@ fun main(args: Array<String>) {
     println()
 
 
-    val account = Account("Jin", 19791115)
+    val account = Account("Jin", 19791115, -2000)
     account.checkBalance()
     account.deposit(100000)
     account.checkBalance()
-    account.withdraw(7000)
-    account.checkBalance()
+    if (account.withdraw(7000))
+        account.checkBalance()
+    else
+        println("Withdraw Error!")
     println()
 
     val tv = TV(false, 11)
@@ -132,16 +134,34 @@ class Calculator3(private val number: Int, private var floatNum: Float = 0.0f) {
  - 잔고 확인 기능
  - 출금/예금 기능
 */
-class Account(var name: String, var birth: Int, var balance: Long = 0L) {
+class Account {
+
+    val name: String
+    val birth: Int
+    var balance: Long
+
+    constructor(name: String, birth: Int, balance: Long = 0L) {
+        this.name = name
+        this.balance = balance
+        if (balance >= 0)
+            this.balance = balance
+        else
+            this.balance = 0
+        this.birth = birth
+    }
 
     fun checkBalance() = println("balance: $balance")
     fun deposit(money: Long): Long {
         balance += money
         return balance
     }
-    fun withdraw(money: Long): Long {
-        balance -= money
-        return balance
+    fun withdraw(money: Long): Boolean {
+        var res = false
+        if (balance >= money) {
+            balance -= money
+            res = true
+        }
+        return res
     }
 }
 
