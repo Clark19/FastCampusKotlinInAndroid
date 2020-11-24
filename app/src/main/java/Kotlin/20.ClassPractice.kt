@@ -9,10 +9,10 @@ fun main(args: Array<String>) {
     println()
 
     val cal2 = Calculator2()
-    println(cal2.plus(1,2,3,4,5))
-    println(cal2.minus(10, 1,2,3))
-    println(cal2.multiply(1,2,3))
-    println(cal2.divide(10, 2,3))
+    println(cal2.plus(1, 2, 3, 4, 5))
+    println(cal2.minus(10, 1, 2, 3))
+    println(cal2.multiply(1, 2, 3))
+    println(cal2.divide(10, 2, 3))
 
     val cal3 = Calculator3(5)
     print("cal3.plus: ${cal3.plus(2).getNumber()}\n")
@@ -32,9 +32,26 @@ fun main(args: Array<String>) {
         println("Withdraw Error!")
     println()
 
-    val tv = TV(false, 11)
+    val tv = TV(false)
     tv.turnOn(true)
     tv.changeChannel(6)
+
+    val tv2 = TV(false, 11,
+            mutableMapOf(6 to "SBS", 7 to "KBS2", 9 to "KBS1", 11 to "MBC"))
+    tv2.turnOn(on = false)
+    tv2.changeChannel(9)
+    tv2.turnOn(on = true)
+    tv2.changeChannel(7)
+
+    for (i in 0 until 10) {
+        tv2.channelUp()
+        tv2.printCurChannel()
+    }
+    println()
+    for (i in 0..10) {
+        tv2.channelDown()
+        tv2.printCurChannel()
+    }
 }
 
 // 1번 문제: 사칙 연산 수행 할 수 있는 클래스
@@ -151,10 +168,12 @@ class Account {
     }
 
     fun checkBalance() = println("balance: $balance")
+
     fun deposit(money: Long): Long {
         balance += money
         return balance
     }
+
     fun withdraw(money: Long): Boolean {
         var res = false
         if (balance >= money) {
@@ -165,38 +184,84 @@ class Account {
     }
 }
 
+class Account3(initialBalance: Int) {
+
+    val balance: Int = if (initialBalance >= 0) initialBalance else 0
+
+    fun checkBalance(): Int {
+        return balance
+    }
+}
+
+
+
 /* 3번 문제. TV 클래스
  - on/off 기능
  - 채널 돌리는 기능
  - 초기 채널은 (S, M, K 사 3개)
 */
-class TV(var powerOn: Boolean, var channelNum: Int) {
+class TV(private var powerOn: Boolean) {
 
-    var channelList: MutableMap<Int, String> = mutableMapOf()
-
+    private var channels: MutableMap<Int, String> = mutableMapOf()
+    private var channelNum = 0
+        set(value) {
+            field = value
+//            println(value)
+        }
     init {
-        channelList.put(11, "MBC")
-        channelList.set(9, "KBS1")
-        channelList[7] = "KBS2"
-        channelList[6] = "SBS"
+        channels[6] = "SBS"
+        channels[7] = "KBS2"
+        channels.set(9, "KBS1")
+        channels.put(11, "MBC")
     }
 
     constructor(powerOn: Boolean, channelNum: Int,
-                channelList: MutableMap<Int, String>) : this(powerOn, channelNum) {
-        this.channelList = channelList
+                channelList: MutableMap<Int, String>) : this(powerOn) {
+        this.channelNum = channelNum
+        this.channels = channelList
     }
 
     fun turnOn(on: Boolean) {
         powerOn = on
         println("TV Power On: $powerOn, Channel Number : ${this.channelNum}, " +
-                "curBroadCasting company: ${channelList[channelNum]}")
+                "curBroadCasting company: ${channels[channelNum]}")
 
     }
 
     fun changeChannel(channelNum: Int) {
         this.channelNum = channelNum
-        channelList[channelNum]
+        channels[channelNum]
         println("Change to Channel Number : ${this.channelNum}, " +
-                "curBroadCasting company: ${channelList[channelNum]}")
+                "curBroadCasting company: ${channels[channelNum]}")
+    }
+
+    fun channelUp() {
+        val channelList = channels.keys.toList()
+        channelList.toList().forEachIndexed { index, channel ->
+            if (channelNum == channel) {
+                if (channelList.size == index+1)
+                    channelNum = channelList[0]
+                else
+                    channelNum = channelList[index + 1]
+                return
+            }
+        }
+    }
+
+    fun channelDown() {
+        val channelList = channels.keys.toList()
+        channelList.toList().forEachIndexed { index, channel ->
+            if (channelNum == channel) {
+                if (0 == index)
+                    channelNum = channelList[channelList.size-1]
+                else
+                    channelNum = channelList[index - 1]
+                return
+            }
+        }
+    }
+
+    fun printCurChannel() {
+        println("chNo.: ${channelNum}(${channels.get(channelNum)})")
     }
 }
